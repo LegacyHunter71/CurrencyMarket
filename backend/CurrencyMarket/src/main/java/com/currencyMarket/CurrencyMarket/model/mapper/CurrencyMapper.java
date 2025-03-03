@@ -11,7 +11,10 @@ import java.util.stream.Collectors;
 public class CurrencyMapper {
 
     private CurrencyDto toCurrencyDto(Rate rate) {
-        return new CurrencyDto(rate.getCurrency(), rate.getCode());
+        return CurrencyDto.builder()
+                .currencyCode(rate.getCode())
+                .currencyName(rate.getCurrency())
+                .build();
     }
 
     public List<CurrencyDto> toCurrenciesDtoList(List<Rate> rates) {

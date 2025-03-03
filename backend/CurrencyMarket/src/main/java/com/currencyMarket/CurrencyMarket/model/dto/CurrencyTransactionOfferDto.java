@@ -6,6 +6,7 @@ import jakarta.persistence.Enumerated;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -14,6 +15,7 @@ import java.math.BigDecimal;
 @Builder
 public class CurrencyTransactionOfferDto {
 
+    private UUID id;
     private String currencyName;
     private String currencyCode;
     private double currencyRate;

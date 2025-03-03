@@ -14,7 +14,7 @@ public interface CurrencyTransactionService {
 
     CurrencyTransactionRateDto getCurrencyTransactionRate(String code);
 
-    CurrencyTransactionOfferDto createCurrencyTransactionOffer(CurrencyTransactionInDto dto);
+    CurrencyTransactionOfferDto addCurrencyTransaction(CurrencyTransactionInDto dto);
 
     void changeTransactionStatus(UUID uuid);
 }

@@ -1,3 +1,14 @@
 package com.currencyMarket.CurrencyMarket.model.dto;
 
-public record CurrencyDto(String currencyCode, String currencyName) { }
+import lombok.*;
+
+@AllArgsConstructor
+@NoArgsConstructor
+@Setter
+@Getter
+@Builder
+public class CurrencyDto {
+
+    String currencyCode;
+    String currencyName;
+}

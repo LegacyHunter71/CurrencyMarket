@@ -2,18 +2,17 @@ package com.currencyMarket.CurrencyMarket.controller;
 
 import com.currencyMarket.CurrencyMarket.model.dto.CurrencyDto;
 import com.currencyMarket.CurrencyMarket.model.dto.CurrencyTransactionInDto;
+import com.currencyMarket.CurrencyMarket.model.dto.CurrencyTransactionOfferDto;
 import com.currencyMarket.CurrencyMarket.model.dto.CurrencyTransactionRateDto;
 import com.currencyMarket.CurrencyMarket.service.CurrencyTransactionServiceImpl;
 import com.currencyMarket.CurrencyMarket.utils.NbpManagerImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
@@ -21,7 +20,6 @@ import java.util.List;
 public class CurrencyController {
 
 
-    private final NbpManagerImpl manager;
     private final CurrencyTransactionServiceImpl service;
 
     @GetMapping()
@@ -35,6 +33,18 @@ public class CurrencyController {
     public ResponseEntity<CurrencyTransactionRateDto> getCurrencyRatesInfo(@PathVariable String code) {
         CurrencyTransactionRateDto  result = service.getCurrencyTransactionRate(code);
         return new ResponseEntity<>(result, HttpStatus.OK);
+    }
+
+    @PostMapping
+    public ResponseEntity<CurrencyTransactionOfferDto> addCurrencyTransaction(@RequestBody CurrencyTransactionInDto dto) {
+        CurrencyTransactionOfferDto  result = service.addCurrencyTransaction(dto);
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
+
+    @PatchMapping("/{uuid}/complete")
+    public ResponseEntity<Void> completeTransaction(@PathVariable UUID uuid) {
+        service.changeTransactionStatus(uuid);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
 }
