@@ -37,12 +37,14 @@ public class CurrencyTransactionServiceImpl implements CurrencyTransactionServic
 
     @Override
     public List<CurrencyDto> getCurrency() {
+
         List<CurrencyDto> allCurrenciesDtoList =createCurrenciesDtoList(nbpManagerImpl.getRatesFromApi());
         List<String> currencyCodes = getCurrencyCodesFromProperties();
         return filterCurrencies(currencyCodes, allCurrenciesDtoList);
     }
 
     private List<String> getCurrencyCodesFromProperties() {
+
         String currencyCodesString = environment.getProperty("currency.codes");
         if (currencyCodesString != null) {
             return Arrays.asList(currencyCodesString.split(","));
@@ -52,12 +54,14 @@ public class CurrencyTransactionServiceImpl implements CurrencyTransactionServic
     }
 
     private List<CurrencyDto> filterCurrencies(List<String> currencyCodes,List<CurrencyDto> currencies) {
+
         return currencies.stream()
                 .filter(dto -> currencyCodes.contains(dto.getCurrencyCode()))
                 .collect(Collectors.toList());
     }
 
     private CurrencyDto createCurrencyDto(Rate rate) {
+
         return CurrencyDto.builder()
                 .currencyCode(rate.getCode())
                 .currencyName(rate.getCurrency())
@@ -65,6 +69,7 @@ public class CurrencyTransactionServiceImpl implements CurrencyTransactionServic
     }
 
     private List<CurrencyDto> createCurrenciesDtoList(List<Rate> rates) {
+
         return rates.stream()
                 .map(this::createCurrencyDto)
                 .collect(Collectors.toList());
@@ -72,11 +77,13 @@ public class CurrencyTransactionServiceImpl implements CurrencyTransactionServic
 
     @Override
     public CurrencyTransactionRateDto getCurrencyTransactionRate(String code) {
+
         NbpCurrencyRate currencyRate = nbpManagerImpl.getCurrencyRateFromApi(code);
         return createCurrencyTransactionRateDto(currencyRate);
     }
 
     private CurrencyTransactionRateDto createCurrencyTransactionRateDto(NbpCurrencyRate rate) {
+
         return CurrencyTransactionRateDto.builder()
                 .currencyCode(rate.getCode())
                 .currencyName(rate.getCurrency())
@@ -87,6 +94,7 @@ public class CurrencyTransactionServiceImpl implements CurrencyTransactionServic
 
     @Override
     public CurrencyTransactionOfferDto addCurrencyTransaction(CurrencyTransactionInDto dto) {
+
         CurrencyTransaction currencyTransaction = createCurrencyTransaction(dto);
         CurrencyTransaction savedCurrencyTransaction = currencyTransactionRepository.save(currencyTransaction);
 
@@ -94,6 +102,7 @@ public class CurrencyTransactionServiceImpl implements CurrencyTransactionServic
     }
 
     private CurrencyTransaction createCurrencyTransaction(CurrencyTransactionInDto dto) {
+
         return CurrencyTransaction.builder()
                 .currencyRate(dto.getCurrencyRate())
                 .currencyName(dto.getCurrencyName())
@@ -107,6 +116,7 @@ public class CurrencyTransactionServiceImpl implements CurrencyTransactionServic
     }
 
     private BigDecimal getAmount(double quantity, double currencyRate) {
+
         BigDecimal quantityBigDecimal = BigDecimal.valueOf(quantity);
         BigDecimal currencyRateBigDecimal = BigDecimal.valueOf(currencyRate);
 

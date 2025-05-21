@@ -24,6 +24,7 @@ public class NbpManagerImpl implements NbpManager {
 
     @Override
     public List<Rate> getRatesFromApi() {
+
         WebClient webClient = webClientBuilder.baseUrl(NBP_RATE_URL).build();
 
         try {
@@ -46,6 +47,7 @@ public class NbpManagerImpl implements NbpManager {
 
     @Override
     public NbpCurrencyRate getCurrencyRateFromApi(String code) {
+
         WebClient webClient = webClientBuilder.baseUrl(createUrl(code)).build();
 
         try {
