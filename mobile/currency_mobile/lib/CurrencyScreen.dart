@@ -42,7 +42,7 @@ class _CurrencyScreenState extends State<CurrencyScreen> {
         ),
         centerTitle: true,
         actions: [
-          GestureDetector(
+          InkWell(
             onTap: () {
               setState(() {
                 _currenciesFuture = fetchCurrencies();

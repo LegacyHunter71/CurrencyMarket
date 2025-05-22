@@ -1,3 +1,4 @@
+// lib/currency_detail_screen.dart
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -18,7 +19,8 @@ class CurrencyDetailScreen extends StatefulWidget {
 class _CurrencyDetailScreenState extends State<CurrencyDetailScreen> {
   late Future<CurrencyDetail> _currencyDetailFuture;
   final TextEditingController _amountController = TextEditingController();
-  TransactionResponse? _transactionResponse; // Zmienna do przechowywania odpowiedzi z transakcji
+  TransactionResponse? _transactionResponse;
+  bool _isTransactionInitiated = false;
 
   @override
   void initState() {
@@ -44,7 +46,8 @@ class _CurrencyDetailScreenState extends State<CurrencyDetailScreen> {
 
   Future<void> _postTransaction(TransactionRequest request) async {
     setState(() {
-      _transactionResponse = null; // Czyść poprzednią odpowiedź przed nowym żądaniem
+      _transactionResponse = null;
+      _isTransactionInitiated = true;
     });
 
     try {
@@ -74,6 +77,7 @@ class _CurrencyDetailScreenState extends State<CurrencyDetailScreen> {
       );
       setState(() {
         _transactionResponse = null;
+        _isTransactionInitiated = false;
       });
     }
   }
@@ -85,11 +89,10 @@ class _CurrencyDetailScreenState extends State<CurrencyDetailScreen> {
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
-
       );
 
-      if (response.statusCode == 200 || response.statusCode == 204) { // 200 OK lub 204 No Content
-        _showCompletionDialog(); // Pokaż okienko sukcesu
+      if (response.statusCode == 200 || response.statusCode == 204) {
+        _showCompletionDialog();
       } else {
         final errorBody = utf8.decode(response.bodyBytes);
         throw Exception('Failed to complete transaction: ${response.statusCode} - $errorBody');
@@ -104,8 +107,8 @@ class _CurrencyDetailScreenState extends State<CurrencyDetailScreen> {
   void _showCompletionDialog() {
     showDialog(
       context: context,
-      barrierDismissible: false, // Użytkownik musi kliknąć OK
-      builder: (BuildContext dialogContext) { // Użyj dialogContext
+      barrierDismissible: false,
+      builder: (BuildContext dialogContext) {
         return AlertDialog(
           title: const Text('Transakcja Zrealizowana!'),
           content: const Text('Twoja transakcja została pomyślnie zrealizowana.'),
@@ -113,8 +116,8 @@ class _CurrencyDetailScreenState extends State<CurrencyDetailScreen> {
             TextButton(
               child: const Text('OK'),
               onPressed: () {
-                Navigator.of(dialogContext).pop(); // Zamknij dialog
-                Navigator.of(context).pop(); // Wróć do poprzedniego ekranu (CurrencyScreen)
+                Navigator.of(dialogContext).pop();
+                Navigator.of(context).pop();
               },
             ),
           ],
@@ -123,10 +126,9 @@ class _CurrencyDetailScreenState extends State<CurrencyDetailScreen> {
     );
   }
 
-
   void _onBuyPressed(CurrencyDetail details) {
-    final amountText = _amountController.text;
-    final quantity = double.tryParse(amountText);
+    final cleanAmountText = _amountController.text.replaceAll(',', '.');
+    final quantity = double.tryParse(cleanAmountText);
 
     if (quantity != null && quantity > 0) {
       final request = TransactionRequest(
@@ -145,8 +147,8 @@ class _CurrencyDetailScreenState extends State<CurrencyDetailScreen> {
   }
 
   void _onSellPressed(CurrencyDetail details) {
-    final amountText = _amountController.text;
-    final quantity = double.tryParse(amountText);
+    final cleanAmountText = _amountController.text.replaceAll(',', '.');
+    final quantity = double.tryParse(cleanAmountText);
 
     if (quantity != null && quantity > 0) {
       final request = TransactionRequest(
@@ -233,10 +235,13 @@ class _CurrencyDetailScreenState extends State<CurrencyDetailScreen> {
                       TextField(
                         controller: _amountController,
                         keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: false),
-                        decoration: const InputDecoration(
-                          border: OutlineInputBorder(),
+                        readOnly: _isTransactionInitiated,
+                        decoration: InputDecoration(
+                          border: const OutlineInputBorder(),
                           labelText: 'Ilość',
                           hintText: 'Wprowadź ilość waluty',
+                          fillColor: _isTransactionInitiated ? Colors.grey[200] : Colors.white,
+                          filled: true,
                         ),
                       ),
                       const SizedBox(height: 16),
@@ -245,7 +250,7 @@ class _CurrencyDetailScreenState extends State<CurrencyDetailScreen> {
                         children: [
                           Expanded(
                             child: ElevatedButton.icon(
-                              onPressed: () => _onBuyPressed(currencyDetails),
+                              onPressed: _isTransactionInitiated ? null : () => _onBuyPressed(currencyDetails),
                               icon: const Icon(Icons.shopping_cart),
                               label: const Text('Kup'),
                               style: ElevatedButton.styleFrom(
@@ -256,7 +261,7 @@ class _CurrencyDetailScreenState extends State<CurrencyDetailScreen> {
                           const SizedBox(width: 16),
                           Expanded(
                             child: ElevatedButton.icon(
-                              onPressed: () => _onSellPressed(currencyDetails),
+                              onPressed: _isTransactionInitiated ? null : () => _onSellPressed(currencyDetails),
                               icon: const Icon(Icons.attach_money),
                               label: const Text('Sprzedaj'),
                               style: ElevatedButton.styleFrom(
@@ -266,7 +271,6 @@ class _CurrencyDetailScreenState extends State<CurrencyDetailScreen> {
                           ),
                         ],
                       ),
-                      // Wynik transakcji i przycisk finalizacji
                       if (_transactionResponse != null)
                         Padding(
                           padding: const EdgeInsets.only(top: 24.0),
@@ -274,7 +278,7 @@ class _CurrencyDetailScreenState extends State<CurrencyDetailScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               const Text(
-                                'Wynik wstępnej transakcji:', // Zmieniony tekst
+                                'Wynik wstępnej transakcji:',
                                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                               ),
                               const SizedBox(height: 8),
@@ -295,16 +299,15 @@ class _CurrencyDetailScreenState extends State<CurrencyDetailScreen> {
                                 style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.blueAccent),
                               ),
                               const SizedBox(height: 16),
-                              Center( // Wyśrodkuj przycisk finalizacji
+                              Center(
                                 child: ElevatedButton.icon(
                                   onPressed: () {
-                                    // Wyślij żądanie PATCH z UUID transakcji
                                     _completeTransaction(_transactionResponse!.id);
                                   },
                                   icon: const Icon(Icons.check_circle_outline),
                                   label: const Text('Finalizuj Transakcję'),
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.green, // Uczyń przycisk bardziej widocznym
+                                    backgroundColor: Colors.green,
                                     foregroundColor: Colors.white,
                                     padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
                                     textStyle: const TextStyle(fontSize: 18),
