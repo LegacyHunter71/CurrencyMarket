@@ -38,7 +38,7 @@ public class CurrencyTransactionServiceImpl implements CurrencyTransactionServic
     @Override
     public List<CurrencyDto> getCurrency() {
 
-        List<CurrencyDto> allCurrenciesDtoList =createCurrenciesDtoList(nbpManagerImpl.getRatesFromApi());
+        List<CurrencyDto> allCurrenciesDtoList = createCurrenciesDtoList(nbpManagerImpl.getRatesFromApi());
         List<String> currencyCodes = getCurrencyCodesFromProperties();
         return filterCurrencies(currencyCodes, allCurrenciesDtoList);
     }
@@ -53,7 +53,7 @@ public class CurrencyTransactionServiceImpl implements CurrencyTransactionServic
         }
     }
 
-    private List<CurrencyDto> filterCurrencies(List<String> currencyCodes,List<CurrencyDto> currencies) {
+    private List<CurrencyDto> filterCurrencies(List<String> currencyCodes, List<CurrencyDto> currencies) {
 
         return currencies.stream()
                 .filter(dto -> currencyCodes.contains(dto.getCurrencyCode()))
@@ -95,6 +95,9 @@ public class CurrencyTransactionServiceImpl implements CurrencyTransactionServic
     @Override
     public CurrencyTransactionOfferDto addCurrencyTransaction(CurrencyTransactionInDto dto) {
 
+        if (dto.getQuantity() < 0 || dto.getCurrencyRate() < 0) {
+            throw new BusinessException("Invalid numeric value", UUID.fromString("f47ac10b-58cc-4372-a567-0e02b2c3d479"));
+        }
         CurrencyTransaction currencyTransaction = createCurrencyTransaction(dto);
         CurrencyTransaction savedCurrencyTransaction = currencyTransactionRepository.save(currencyTransaction);
 
@@ -128,7 +131,7 @@ public class CurrencyTransactionServiceImpl implements CurrencyTransactionServic
     public void changeTransactionStatus(UUID uuid) {
 
         Optional<CurrencyTransaction> transaction = currencyTransactionRepository.findById(uuid);
-        if(transaction.isEmpty()){
+        if (transaction.isEmpty()) {
             throw new BusinessException("Unknown transaction", UUID.fromString("caf5cea3-aadc-4453-900d-e40f34480066"));
         }
         CurrencyTransaction currencyTransaction = transaction.get();

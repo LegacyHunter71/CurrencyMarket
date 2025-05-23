@@ -5,7 +5,6 @@ import com.currencyMarket.CurrencyMarket.model.dto.CurrencyTransactionInDto;
 import com.currencyMarket.CurrencyMarket.model.dto.CurrencyTransactionOfferDto;
 import com.currencyMarket.CurrencyMarket.model.dto.CurrencyTransactionRateDto;
 import com.currencyMarket.CurrencyMarket.service.CurrencyTransactionServiceImpl;
-import com.currencyMarket.CurrencyMarket.utils.NbpManagerImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,13 +30,13 @@ public class CurrencyController {
 
     @GetMapping("/{code}")
     public ResponseEntity<CurrencyTransactionRateDto> getCurrencyRatesInfo(@PathVariable String code) {
-        CurrencyTransactionRateDto  result = service.getCurrencyTransactionRate(code);
+        CurrencyTransactionRateDto result = service.getCurrencyTransactionRate(code);
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
     @PostMapping
     public ResponseEntity<CurrencyTransactionOfferDto> addCurrencyTransaction(@RequestBody CurrencyTransactionInDto dto) {
-        CurrencyTransactionOfferDto  result = service.addCurrencyTransaction(dto);
+        CurrencyTransactionOfferDto result = service.addCurrencyTransaction(dto);
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
